@@ -57,20 +57,24 @@ team_members_dictionary = {
 }
 
 
-def output_dict(input):
-    """This function takes in a dictionary and outputs each key / value
-    into a window, formating nested dictionaries and lists into 
-    printable strings."""
+def output_dict_all(input):
+    """This function takes in a nested dictionary and outputs each key / value
+    into a string. This function uses basic handling of formatting information to present the information"""
 
     # Defines an empty list that will contain the output message lines
     msg_lines = []
-    for id, details in input:
+
+    # Iterates through each Id and their dictionaries
+    for id, details in input.items():
         msg_lines.append(f"\n{id}")
-        for detail, value in details:
-            if isinstance(value, list):
-                new_value = ", ".join(value)
-                msg_lines.append(f"\t{detail}: {new_value}")
+        for detail_id, detail in details.items():
+            if isinstance(detail, list):
+                new_detail = ", ".join(detail)
+                msg_lines.append(f"  {detail_id}: {new_detail}")
             else:
-                str(value)
-                msg_lines.append(f"\t{detail}: {value}")
-        
+                msg_lines.append(f"  {detail_id}: {detail}")
+    msg = "\n".join(msg_lines)
+
+    return msg
+
+
