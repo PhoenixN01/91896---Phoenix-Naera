@@ -58,8 +58,10 @@ team_members_dictionary = {
 
 
 def output_dict_all(input):
-    """This function takes in a nested dictionary and outputs each key / value
-    into a string. This function uses basic handling of formatting information to present the information"""
+    """This function takes in a nested dictionary and outputs each 
+    key / value into a string. This function uses basic handling of 
+    formatting information when returning an output. This function can 
+    handle 1 layer of nested dictionaries."""
 
     # Defines an empty list that will contain the output message lines
     msg_lines = []
@@ -77,4 +79,27 @@ def output_dict_all(input):
 
     return msg
 
+def output_dict_single(input):
+    """This function takes in a dictionary that does not contain nested
+    dictionaries and formats the contents into a printable string as an 
+    output."""
+
+    msg_lines = []
+
+    for id, detail in input.items():
+        msg_lines.append(f"{id}: {detail}")
+
+
+def search_dict(input, target_id):
+    """This function takes in a nested dictionary and iterates through
+    to search for a specific target case within the dictionary. 
+    This function returns either the found result or None."""
+
+    # Checking if the desired id is in in the dictionary and outputting 
+    # the details of that id if found
+    for id, detail in input.items():
+        if id == target_id:
+            return detail
+    
+    return None
 
