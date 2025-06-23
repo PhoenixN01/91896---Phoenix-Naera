@@ -57,49 +57,74 @@ team_members_dictionary = {
 }
 
 
-def output_dict_all(input):
+def format_dict_all(input):
     """This function takes in a nested dictionary and outputs each 
     key / value into a string. This function uses basic handling of 
     formatting information when returning an output. This function can 
     handle 1 layer of nested dictionaries."""
 
-    # Defines an empty list that will contain the output message lines
+    # Defines an empty list that will contain the output message lines.
     msg_lines = []
 
-    # Iterates through each Id and their dictionaries
+    # Iterates through each Id and their dictionaries to format each 
+    # nested dictionary, joining each item to the final message.
     for id, details in input.items():
         msg_lines.append(f"\n{id}")
         for detail_id, detail in details.items():
             if isinstance(detail, list):
                 new_detail = ", ".join(detail)
-                msg_lines.append(f"  {detail_id}: {new_detail}")
-            else:
-                msg_lines.append(f"  {detail_id}: {detail}")
+                detail = new_detail
+            msg_lines.append(f"  {detail_id}: {detail}")
     msg = "\n".join(msg_lines)
 
     return msg
 
-def output_dict_single(input):
+def format_dict_single(input):
     """This function takes in a dictionary that does not contain nested
     dictionaries and formats the contents into a printable string as an 
     output."""
 
+    # Defines an empty list that will contain the output message lines.
     msg_lines = []
 
+    # Iterates through the single dictionary to convert the contents
+    # into a message with basic formatting.
     for id, detail in input.items():
+        if isinstance(detail, list):
+            new_detail = ", ".join(detail)
+            detail = new_detail
         msg_lines.append(f"{id}: {detail}")
 
-
-def search_dict(input, target_id):
+    msg = "\n".join(msg_lines)
+    return msg
+    
+def search_dict(input):
     """This function takes in a nested dictionary and iterates through
     to search for a specific target case within the dictionary. 
-    This function returns either the found result or None."""
+    This function returns either the found result in a formatted 
+    printable string or None."""
+
+    msg = "Please enter the desired ID"
+    target_id = easygui.enterbox()
 
     # Checking if the desired id is in in the dictionary and outputting 
-    # the details of that id if found
-    for id, detail in input.items():
+    # the details of that id if it is found.
+    for id, details in input.items():
         if id == target_id:
-            return detail
+            output = format_dict_single(details)
+            return output
     
     return None
 
+def add_task(task_dictionary):
+    """This function takes in the Task Dictionary and inserts a new 
+    task. This task will only be inserted if all compulsory fields are 
+    filled"""
+
+    task_fields = [
+        "Title", 
+        "Description", 
+        "Assignee", 
+        "Priority", 
+        "Status"
+        ]
