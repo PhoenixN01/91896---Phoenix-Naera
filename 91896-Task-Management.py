@@ -38,6 +38,7 @@ task_dictionary = {
     }
 }
 
+
 team_members_dictionary = {
     "JSM": {
         "Name": "John Smith",
@@ -79,6 +80,7 @@ def format_dict_all(input):
 
     return msg
 
+
 def format_dict_single(input):
     """This function takes in a dictionary that does not contain nested
     dictionaries and formats the contents into a printable string as an 
@@ -97,7 +99,8 @@ def format_dict_single(input):
 
     msg = "\n".join(msg_lines)
     return msg
-    
+
+
 def search_dict(input):
     """This function takes in a nested dictionary and iterates through
     to search for a specific target case within the dictionary. 
@@ -105,7 +108,7 @@ def search_dict(input):
     printable string or None."""
 
     msg = "Please enter the desired ID"
-    target_id = easygui.enterbox()
+    target_id = easygui.enterbox(msg)
 
     # Checking if the desired id is in in the dictionary and outputting 
     # the details of that id if it is found.
@@ -116,6 +119,7 @@ def search_dict(input):
     
     return None
 
+
 def add_task(task_dictionary):
     """This function takes in the Task Dictionary and inserts a new 
     task. This task will only be inserted if all compulsory fields are 
@@ -124,10 +128,15 @@ def add_task(task_dictionary):
     task_fields = [
         "Title", 
         "Description", 
-        "Assignee", 
+        "Assignee (optional)", 
         "Priority", 
         "Status"
-        ]
+    ]
+    int_bounds = {
+        "Priority": [0, 4]
+    }
+
+
     new_task = []
     new_task = easygui.multenterbox(
         "Please Enter Task Details", 
@@ -137,4 +146,22 @@ def add_task(task_dictionary):
     
     if new_task == None:
         return
+    
+    else:
 
+        error = ""
+        for index in range(0, len(new_task)):
+
+            if new_task[index].strip() == "":
+                if index != 2:
+                    error = "All Necessary fields are \
+                        required to create task"
+            
+            else:
+                if (task_fields[index] in int_bounds) and \
+                    (isinstance(new_task[index], int)):
+                    bounds = int_bounds[task_fields[index]]
+                    if new_task[index] in range(
+                        min(bounds), max(bounds)
+                        ):
+                        continue # Continue Function implementation here
