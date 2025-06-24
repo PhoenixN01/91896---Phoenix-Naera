@@ -133,7 +133,7 @@ def add_task(task_dictionary):
         "Status"
     ]
     int_bounds = {
-        "Priority": [0, 4]
+        "Priority": [1, 3]
     }
 
 
@@ -156,12 +156,21 @@ def add_task(task_dictionary):
                 if index != 2:
                     error = "All Necessary fields are \
                         required to create task"
+                    break
             
             else:
-                if (task_fields[index] in int_bounds) and \
-                    (isinstance(new_task[index], int)):
+                if (task_fields[index] in int_bounds):
+                    try:
+                        new_task[index] = int(new_task[index])
+                    except TypeError:
+                        error = f"{task_fields[index]} \
+                            must be an Integer."
+                        break
+
                     bounds = int_bounds[task_fields[index]]
-                    if new_task[index] in range(
-                        min(bounds), max(bounds)
+                    if not (
+                        min(bounds) <= new_task[index] <= max(bounds)
                         ):
-                        continue # Continue Function implementation here
+                        error = f"{task_fields[index]} must be within \
+                            {min(bounds)} to {max(bounds)}"
+                        break
