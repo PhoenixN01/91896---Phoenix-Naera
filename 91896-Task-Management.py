@@ -128,3 +128,13 @@ def add_task(task_dictionary):
         "Priority", 
         "Status"
         ]
+    new_task = []
+    new_task = easygui.multenterbox(
+        "Please Enter Task Details", 
+        "New Task", 
+        task_fields
+        )
+    
+    if new_task == None:
+        return
+
