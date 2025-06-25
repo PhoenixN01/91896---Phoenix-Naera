@@ -102,6 +102,10 @@ def format_dict_single(input):
     return msg
 
 
+# def int_validation(input, bounds=None):
+
+
+
 def search_dict(input):
     """This function takes in a nested dictionary and iterates through
     to search for a specific target case within the dictionary. 
@@ -122,9 +126,10 @@ def search_dict(input):
 
 
 def add_task(task_dictionary, team_members_dictionary):
-    """This function takes in the Task Dictionary and inserts a new 
-    task. This task will only be inserted if all compulsory fields are 
-    filled"""
+    """This function takes in the Task Dictionary and 
+    Team Members Dictionary and inserts a new task. This task 
+    will only be inserted if all compulsory fields are filled, 
+    looping enterbox request until fulfilled or cancelled."""
 
     task_fields = [
         "Title", 
@@ -154,11 +159,12 @@ def add_task(task_dictionary, team_members_dictionary):
             ))
         
         if new_task == None:
-            return
+            return task_dictionary, team_members_dictionary
         
         else:
             task_values = list(new_task)
             error = ""
+
             for index in range(0, len(task_values)):
 
                 if task_values[index].strip() == "":
@@ -166,9 +172,12 @@ def add_task(task_dictionary, team_members_dictionary):
                         error = "All Necessary fields are \
                             required to create task"
                         break
+                    else:
+                        assignee = False
                 
                 else:
                     if (task_fields[index] in int_bounds):
+
                         try:
                             int_test = int(task_values[index])
                         except TypeError:
@@ -180,10 +189,11 @@ def add_task(task_dictionary, team_members_dictionary):
                         if not (
                             min(bounds) <= int_test <= max(bounds)
                             ):
-                            error = f"{task_fields[index]} \
+                            error = f"{task_fields[index].strip()} \
                                 must be within \
                                 {min(bounds)} to {max(bounds)}"
                             break
+
                     elif index == 2:
                         member_id = task_values[index]
                         if not (
@@ -193,13 +203,31 @@ def add_task(task_dictionary, team_members_dictionary):
                             error = f"{task_values[index]} \
                                 is not a valid ID for \
                                 {task_fields[index][:8]}"
+                        else:
+                            assignee = True
+
             if error:
                 easygui.msgbox(error, "Error")
                 continue
             else:
-                id_list = task_dictionary.keys()
-                new_id = int(id_list[-1][1:]) + 1
+                id_list = list(task_dictionary.keys())
+                new_id = "T"
+                new_id += str(int(id_list[-1][1:]) + 1)
+
+                if assignee:
+                    team_members_dictionary[task_values[index]]
+                    ["Tasks Assigned"].append(new_id)
+                # Format key value pairs for task here!!!
+                task_dictionary[new_id] = new_task
+                return task_dictionary, team_members_dictionary
                 
 
+def update_task(task_dictionary, team_members_dictionary):
+    """This function takes in the Task Dictionary and 
+    Team Members Dictionary, asking the user for a task detail to
+    edit and validating the requested change for the given detail."""
 
-add_task(task_dictionary, team_members_dictionary)
+msg1, msg2 = add_task(task_dictionary, team_members_dictionary)
+
+print(format_dict_all(msg1))
+print(f"\n\n{format_dict_all(msg2)}")
