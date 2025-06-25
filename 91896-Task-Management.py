@@ -1,4 +1,5 @@
 import easygui
+from typing import cast
 
 task_dictionary = {
     "T1": {
@@ -120,7 +121,7 @@ def search_dict(input):
     return None
 
 
-def add_task(task_dictionary):
+def add_task(task_dictionary, team_members_dictionary):
     """This function takes in the Task Dictionary and inserts a new 
     task. This task will only be inserted if all compulsory fields are 
     filled"""
@@ -138,41 +139,67 @@ def add_task(task_dictionary):
 
 
     new_task = []
-    new_task = easygui.multenterbox(
-        "Please Enter Task Details", 
-        "New Task", 
-        task_fields
-        )
-    
-    if new_task == None:
-        return
-    
-    else:
+    task_values = []
+    # new_task = easygui.multenterbox(
+    #     "Please Enter Task Details",
+    #     "New Task",
+    #     task_fields
+    # )
+    while True:
+        new_task = cast(list[str] | None, easygui.multenterbox(
+            "Please Enter Task Details", 
+            "New Task", 
+            task_fields,
+            task_values
+            ))
+        
+        if new_task == None:
+            return
+        
+        else:
+            task_values = list(new_task)
+            error = ""
+            for index in range(0, len(task_values)):
 
-        error = ""
-        for index in range(0, len(new_task)):
+                if task_values[index].strip() == "":
+                    if index != 2:
+                        error = "All Necessary fields are \
+                            required to create task"
+                        break
+                
+                else:
+                    if (task_fields[index] in int_bounds):
+                        try:
+                            int_test = int(task_values[index])
+                        except TypeError:
+                            error = f"{task_fields[index]} \
+                                must be an Integer."
+                            break
 
-            if new_task[index].strip() == "":
-                if index != 2:
-                    error = "All Necessary fields are \
-                        required to create task"
-                    break
-            
+                        bounds = int_bounds[task_fields[index]]
+                        if not (
+                            min(bounds) <= int_test <= max(bounds)
+                            ):
+                            error = f"{task_fields[index]} \
+                                must be within \
+                                {min(bounds)} to {max(bounds)}"
+                            break
+                    elif index == 2:
+                        member_id = task_values[index]
+                        if not (
+                            member_id in \
+                            team_members_dictionary.keys()
+                            ):
+                            error = f"{task_values[index]} \
+                                is not a valid ID for \
+                                {task_fields[index][:8]}"
+            if error:
+                easygui.msgbox(error, "Error")
+                continue
             else:
-                if (task_fields[index] in int_bounds):
-                    try:
-                        new_task[index] = int(new_task[index])
-                    except TypeError:
-                        error = f"{task_fields[index]} \
-                            must be an Integer."
-                        break
+                id_list = task_dictionary.keys()
+                new_id = int(id_list[-1][1:]) + 1
+                
 
-                    bounds = int_bounds[task_fields[index]]
-                    if not (
-                        min(bounds) <= new_task[index] <= max(bounds)
-                        ):
-                        error = f"{task_fields[index]} must be within \
-                            {min(bounds)} to {max(bounds)}"
-                        break
 
-add_task(task_dictionary)
+add_task(task_dictionary, team_members_dictionary)
