@@ -174,3 +174,5 @@ def add_task(task_dictionary):
                         error = f"{task_fields[index]} must be within \
                             {min(bounds)} to {max(bounds)}"
                         break
+
+add_task(task_dictionary)
