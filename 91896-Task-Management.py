@@ -120,9 +120,9 @@ def search_dict(input):
     for id, details in input.items():
         if id == target_id:
             output = format_dict_single(details)
-            return output
+            return id, output
     
-    return None
+    return None, None
 
 
 def add_task(task_dictionary, team_members_dictionary):
@@ -174,6 +174,7 @@ def add_task(task_dictionary, team_members_dictionary):
                         break
                     else:
                         assignee = False
+                        task_values == "None"
                 
                 else:
                     if (task_fields[index] in int_bounds):
@@ -217,8 +218,9 @@ def add_task(task_dictionary, team_members_dictionary):
                 if assignee:
                     team_members_dictionary[task_values[index]]
                     ["Tasks Assigned"].append(new_id)
-                # Format key value pairs for task here!!!
-                task_dictionary[new_id] = new_task
+                
+                task_dict = dict(zip(task_fields, task_values))
+                task_dictionary[new_id] = task_dict
                 return task_dictionary, team_members_dictionary
                 
 
@@ -227,7 +229,19 @@ def update_task(task_dictionary, team_members_dictionary):
     Team Members Dictionary, asking the user for a task detail to
     edit and validating the requested change for the given detail."""
 
+    task_id, task_details = search_dict(task_dictionary)
+    
+    if (task_id == None) or (task_details == None):
+        return
+    
+    else:
+        msg = format_dict_single(task_details)
+        options = task_details.keys()
+        
+    
+
 msg1, msg2 = add_task(task_dictionary, team_members_dictionary)
+
 
 print(format_dict_all(msg1))
 print(f"\n\n{format_dict_all(msg2)}")
