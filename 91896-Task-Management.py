@@ -102,8 +102,28 @@ def format_dict_single(input):
     return msg
 
 
-# def int_validation(input, bounds=None):
+def int_validation(input, bounds):
+    """This Function takes in an input to be tested and a value for
+    the boundaries of the integer. This function will either return 
+    True for a successful validation or an error message corresponding
+    with the type of error it encountered."""
 
+    # Checks if the input is an integer and returns an error otherwise
+    try:
+        int_test = int(input)
+    except TypeError:
+        error = f"{input} must be a valid integer"
+        return error
+
+    # Checking if any bounds are present, returning True if 
+    if bounds == None:
+        return True
+    elif (min(bounds) <= int_test <= max(bounds)):
+        return True
+    else:
+        error = f"{int_test} must be within \
+            {min(bounds)} to {max(bounds)}"
+        return error
 
 
 def search_dict(input):
@@ -145,11 +165,7 @@ def add_task(task_dictionary, team_members_dictionary):
 
     new_task = []
     task_values = []
-    # new_task = easygui.multenterbox(
-    #     "Please Enter Task Details",
-    #     "New Task",
-    #     task_fields
-    # )
+
     while True:
         new_task = cast(list[str] | None, easygui.multenterbox(
             "Please Enter Task Details", 
@@ -240,8 +256,10 @@ def update_task(task_dictionary, team_members_dictionary):
         
     
 
-msg1, msg2 = add_task(task_dictionary, team_members_dictionary)
+# msg1, msg2 = add_task(task_dictionary, team_members_dictionary)
 
 
-print(format_dict_all(msg1))
-print(f"\n\n{format_dict_all(msg2)}")
+# print(format_dict_all(msg1))
+# print(f"\n\n{format_dict_all(msg2)}")
+
+easygui.msgbox(format_dict_all(task_dictionary))
