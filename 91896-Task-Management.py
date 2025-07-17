@@ -59,6 +59,14 @@ team_members_dictionary = {
 }
 
 
+STATUS_OPTIONS = [
+    "Not Started",
+    "In Progress",
+    "Blocked",
+    "Completed"
+]
+
+
 def format_dict_all(input):
     """This function takes in a nested dictionary and outputs each 
     key / value into a string. This function uses basic handling of 
@@ -129,39 +137,33 @@ def int_validation(input, bounds):
 def search_dict(input):
     """This function takes in a nested dictionary and iterates through
     to search for a specific target case within the dictionary. 
-    This function returns either the found result in a formatted 
-    printable string or None."""
+    This function returns either the found id or None."""
 
     msg = "Please enter the desired ID"
     target_id = easygui.enterbox(msg)
 
     # Checking if the desired id is in in the dictionary and outputting 
-    # the details of that id if it is found.
-    for id, details in input.items():
+    # the id if it is found.
+    for id in input.keys():
         if id == target_id:
-            output = format_dict_single(details)
-            return id, output
+            return id
     
-    return None, None
+    return None
 
 
-def add_task(task_dictionary, team_members_dictionary):
+def add_task(
+        task_dictionary, 
+        team_members_dictionary, 
+        status_options):
     """This function takes in the Task Dictionary and 
     Team Members Dictionary and inserts a new task. This task 
     will only be inserted if all compulsory fields are filled, 
     looping enterbox request until fulfilled or cancelled."""
 
-    task_fields = [
-        "Title", 
-        "Description", 
-        "Assignee (optional)", 
-        "Priority", 
-        "Status"
-    ]
+    task_fields = dict(task_dictionary["T1"].keys())
     int_bounds = {
         "Priority": [1, 3]
     }
-
 
     new_task = []
     task_values = []
@@ -190,25 +192,17 @@ def add_task(task_dictionary, team_members_dictionary):
                         break
                     else:
                         assignee = False
-                        task_values == "None"
+                        task_values[index] == "None"
                 
                 else:
                     if (task_fields[index] in int_bounds):
 
-                        try:
-                            int_test = int(task_values[index])
-                        except TypeError:
-                            error = f"{task_fields[index]} \
-                                must be an Integer."
-                            break
-
-                        bounds = int_bounds[task_fields[index]]
-                        if not (
-                            min(bounds) <= int_test <= max(bounds)
-                            ):
-                            error = f"{task_fields[index].strip()} \
-                                must be within \
-                                {min(bounds)} to {max(bounds)}"
+                        check_int = int_validation(
+                            task_values[index],
+                            int_bounds[task_fields[index]])
+                        
+                        if not check_int == True:
+                            error = check_int
                             break
 
                     elif index == 2:
@@ -222,6 +216,9 @@ def add_task(task_dictionary, team_members_dictionary):
                                 {task_fields[index][:8]}"
                         else:
                             assignee = True
+                    
+                    elif index == 4:
+                        
 
             if error:
                 easygui.msgbox(error, "Error")
@@ -240,19 +237,34 @@ def add_task(task_dictionary, team_members_dictionary):
                 return task_dictionary, team_members_dictionary
                 
 
-def update_task(task_dictionary, team_members_dictionary):
+def update_task(
+        task_dictionary, 
+        team_members_dictionary, 
+        status_options):
     """This function takes in the Task Dictionary and 
     Team Members Dictionary, asking the user for a task detail to
     edit and validating the requested change for the given detail."""
 
-    task_id, task_details = search_dict(task_dictionary)
+    task_id = search_dict(task_dictionary)
     
-    if (task_id == None) or (task_details == None):
+    if task_id == None:
         return
     
     else:
+        task_details = dict(task_dictionary[task_id])
         msg = format_dict_single(task_details)
-        options = task_details.keys()
+        choices = task_details.keys()
+        selection = easygui.buttonbox(
+            msg, 
+            "Select field to edit",
+            choices,
+            cancel_choice="Exit")
+        
+        if selection in [None, "Exit"]:
+            return task_dictionary, team_members_dictionary
+        
+        else:
+            current_details = task_dictionary[task_id][selection]
         
     
 
