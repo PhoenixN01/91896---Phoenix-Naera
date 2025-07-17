@@ -65,6 +65,10 @@ STATUS_OPTIONS = [
     "Blocked",
     "Completed"
 ]
+INT_BOUNDS = {
+    "Priority": [1, 3]
+}
+
 
 
 def format_dict_all(input):
@@ -110,7 +114,7 @@ def format_dict_single(input):
     return msg
 
 
-def int_validation(input, bounds):
+def int_validation(input, bounds=list):
     """This Function takes in an input to be tested and a value for
     the boundaries of the integer. This function will either return 
     True for a successful validation or an error message corresponding
@@ -154,18 +158,14 @@ def search_dict(input):
 def add_task(
         task_dictionary, 
         team_members_dictionary, 
-        status_options):
+        status_options,
+        int_bounds):
     """This function takes in the Task Dictionary and 
     Team Members Dictionary and inserts a new task. This task 
     will only be inserted if all compulsory fields are filled, 
     looping enterbox request until fulfilled or cancelled."""
 
     task_fields = dict(task_dictionary["T1"].keys())
-    int_bounds = {
-        "Priority": [1, 3]
-    }
-
-    new_task = []
     task_values = []
 
     while True:
@@ -186,39 +186,43 @@ def add_task(
             for index in range(0, len(task_values)):
 
                 if task_values[index].strip() == "":
-                    if index != 2:
+                    if task_fields[index] != "Assignee":
                         error = "All Necessary fields are \
                             required to create task"
                         break
                     else:
                         assignee = False
                         task_values[index] == "None"
-                
-                else:
-                    if (task_fields[index] in int_bounds):
 
-                        check_int = int_validation(
-                            task_values[index],
-                            int_bounds[task_fields[index]])
-                        
-                        if not check_int == True:
-                            error = check_int
-                            break
+                elif task_fields[index] in int_bounds:
 
-                    elif index == 2:
-                        member_id = task_values[index]
-                        if not (
-                            member_id in \
-                            team_members_dictionary.keys()
-                            ):
-                            error = f"{task_values[index]} \
-                                is not a valid ID for \
-                                {task_fields[index][:8]}"
-                        else:
-                            assignee = True
+                    check_int = int_validation(
+                        task_values[index],
+                        int_bounds[task_fields[index]])
                     
-                    elif index == 4:
-                        
+                    if not check_int == True:
+                        error = check_int
+                        break
+
+                elif task_fields[index] == "Assignee":
+                    member_id = task_values[index]
+                    if not (
+                        member_id in \
+                        team_members_dictionary.keys()
+                        ):
+                        error = f"{task_values[index]} \
+                            is not a valid ID for \
+                            {task_fields[index][:8]}"
+                    else:
+                        assignee = True
+                
+                elif task_fields[index] == "Status":
+                    if not task_values[index] in status_options:
+                        options_msg = ", ".join(status_options)
+                        error = f"Status must be one of the \
+                            following options: {options_msg}"
+                else:
+                    continue
 
             if error:
                 easygui.msgbox(error, "Error")
@@ -240,7 +244,8 @@ def add_task(
 def update_task(
         task_dictionary, 
         team_members_dictionary, 
-        status_options):
+        status_options,
+        int_bounds):
     """This function takes in the Task Dictionary and 
     Team Members Dictionary, asking the user for a task detail to
     edit and validating the requested change for the given detail."""
@@ -252,10 +257,10 @@ def update_task(
     
     else:
         task_details = dict(task_dictionary[task_id])
-        msg = format_dict_single(task_details)
+        details = format_dict_single(task_details)
         choices = task_details.keys()
         selection = easygui.buttonbox(
-            msg, 
+            details, 
             "Select field to edit",
             choices,
             cancel_choice="Exit")
@@ -264,9 +269,34 @@ def update_task(
             return task_dictionary, team_members_dictionary
         
         else:
-            current_details = task_dictionary[task_id][selection]
-        
-    
+            current_detail = task_dictionary[task_id][selection]
+            msg = f"What would you like to change {selection} to?"
+            new_detail = easygui.enterbox(
+                msg,
+                "Edit Field",
+                current_detail)
+            
+            if new_detail == None:
+                return task_dictionary, team_members_dictionary
+            
+            else:
+                if new_detail.strip() == "":
+                    if selection != "Assignee":
+                        error = "All Necessary fields are \
+                            required to create task"
+                    else:
+                        assignee = False
+                        new_detail == "None"
+                
+                elif selection in int_bounds:
+                    check_int = int_validation(
+                        new_detail,
+                        int_bounds[selection])
+
+                    if not check_int == True:
+                        error = check_int
+                elif selection == "Assignee":
+                    member_id = current_detail
 
 # msg1, msg2 = add_task(task_dictionary, team_members_dictionary)
 
@@ -274,4 +304,4 @@ def update_task(
 # print(format_dict_all(msg1))
 # print(f"\n\n{format_dict_all(msg2)}")
 
-easygui.msgbox(format_dict_all(task_dictionary))
+# easygui.msgbox(format_dict_all(task_dictionary))
