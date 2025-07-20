@@ -19,7 +19,7 @@ task_dictionary = {
     "T3": {
         "Title": "Fix Navigation Menu",
         "Description": "Fix the navigation menu to be more user-friendly",
-        "Assignee": "",
+        "Assignee": "None",
         "Priority": 1,
         "Status": "Not Started"
     },
@@ -58,7 +58,13 @@ team_members_dictionary = {
     }
 }
 
-
+TASK_FIELDS = [
+    "Title",
+    "Description",
+    "Assignee",
+    "Priority",
+    "Status"
+]
 STATUS_OPTIONS = [
     "Not Started",
     "In Progress",
@@ -114,7 +120,7 @@ def format_dict_single(input):
     return msg
 
 
-def int_validation(input, bounds=list):
+def int_validation(input, bounds):
     """This Function takes in an input to be tested and a value for
     the boundaries of the integer. This function will either return 
     True for a successful validation or an error message corresponding
@@ -146,26 +152,26 @@ def search_dict(input):
     msg = "Please enter the desired ID"
     target_id = easygui.enterbox(msg)
 
+    if target_id == None:
+        return None
+
     # Checking if the desired id is in in the dictionary and outputting 
     # the id if it is found.
     for id in input.keys():
         if id == target_id:
             return id
     
-    return None
+    return False
 
 
 def add_task(
-        task_dictionary, 
-        team_members_dictionary, 
-        status_options,
-        int_bounds):
+        task_dictionary, team_members_dictionary,
+        task_fields, status_options, int_bounds):
     """This function takes in the Task Dictionary and 
     Team Members Dictionary and inserts a new task. This task 
     will only be inserted if all compulsory fields are filled, 
     looping enterbox request until fulfilled or cancelled."""
 
-    task_fields = dict(task_dictionary["T1"].keys())
     task_values = []
 
     while True:
@@ -192,7 +198,7 @@ def add_task(
                         break
                     else:
                         assignee = False
-                        task_values[index] == "None"
+                        task_values[index] = "None"
 
                 elif task_fields[index] in int_bounds:
 
@@ -210,9 +216,9 @@ def add_task(
                         member_id in \
                         team_members_dictionary.keys()
                         ):
-                        error = f"{task_values[index]} \
+                        error = f"{member_id} \
                             is not a valid ID for \
-                            {task_fields[index][:8]}"
+                            Assignee"
                     else:
                         assignee = True
                 
@@ -241,11 +247,9 @@ def add_task(
                 return task_dictionary, team_members_dictionary
                 
 
-def update_task(
-        task_dictionary, 
-        team_members_dictionary, 
-        status_options,
-        int_bounds):
+def edit_task(
+        task_dictionary, team_members_dictionary, 
+        status_options, int_bounds):
     """This function takes in the Task Dictionary and 
     Team Members Dictionary, asking the user for a task detail to
     edit and validating the requested change for the given detail."""
@@ -253,7 +257,11 @@ def update_task(
     task_id = search_dict(task_dictionary)
     
     if task_id == None:
-        return
+        return task_dictionary, team_members_dictionary
+    
+    elif task_id == False:
+        easygui.msgbox("Error: Task Not Found", "Error")
+        return task_dictionary, team_members_dictionary
     
     else:
         task_details = dict(task_dictionary[task_id])
@@ -270,38 +278,162 @@ def update_task(
         
         else:
             current_detail = task_dictionary[task_id][selection]
-            msg = f"What would you like to change {selection} to?"
-            new_detail = easygui.enterbox(
-                msg,
-                "Edit Field",
-                current_detail)
-            
-            if new_detail == None:
-                return task_dictionary, team_members_dictionary
-            
-            else:
-                if new_detail.strip() == "":
-                    if selection != "Assignee":
-                        error = "All Necessary fields are \
-                            required to create task"
-                    else:
-                        assignee = False
-                        new_detail == "None"
+
+            while True:
+                error = ""
+
+                msg = f"What would you like to change {selection} to?"
+                new_detail = easygui.enterbox(
+                    msg,
+                    "Edit Field",
+                    current_detail)
                 
-                elif selection in int_bounds:
-                    check_int = int_validation(
-                        new_detail,
-                        int_bounds[selection])
+                if new_detail == None:
+                    return task_dictionary, team_members_dictionary
+                
+                else:
+                    if new_detail.strip() == "":
+                        if selection != "Assignee":
+                            error = "All Necessary fields are \
+                                required to create task"
+                        else:
+                            assignee = False
+                            new_detail = "None"
+                    
+                    elif selection in int_bounds:
+                        check_int = int_validation(
+                            new_detail,
+                            int_bounds[selection])
 
-                    if not check_int == True:
-                        error = check_int
-                elif selection == "Assignee":
-                    member_id = current_detail
+                        if not check_int == True:
+                            error = check_int
+                    elif selection == "Assignee":
+                        member_id = current_detail
+                        if not (
+                            member_id in \
+                            team_members_dictionary.keys()
+                            ):
+                            error = f"{member_id} \
+                                is not a valid ID for \
+                                Assignee"
+                        else:
+                            assignee = True
+                    elif selection == "Status":
+                        if not new_detail in status_options:
+                            options_msg = ", ".join(status_options)
+                            error = f"Status must be one of the \
+                                following options: {options_msg}"
+                
+                if error:
+                    easygui.msgbox(error, "Error")
+                    continue
 
-# msg1, msg2 = add_task(task_dictionary, team_members_dictionary)
+                else:
+                    if assignee:
+                        if not new_detail == current_detail:
+                            team_members_dictionary[new_detail]\
+                                ["Tasks Assigned"].append(task_id)
+                        
+                    task_dictionary[task_id][selection] = new_detail
+                    return task_dictionary, team_members_dictionary
 
+def generate_report(task_dictionary, status_options):
+    """Generate a report containing the number of tasks in each status.
+    """
 
-# print(format_dict_all(msg1))
-# print(f"\n\n{format_dict_all(msg2)}")
+    report_dict = {status: int(0) for status in status_options}
 
-# easygui.msgbox(format_dict_all(task_dictionary))
+    for task in task_dictionary.values():
+        report_dict[task["Status"]] += 1
+    
+    msg_lines = [
+        f"  {key}: {value}" for key, value in report_dict.items()
+        ]
+    msg = "\n---Task Report---\n"
+    msg += "\n".join(msg_lines)
+
+    easygui.msgbox(msg, "Task Report")
+    return
+
+def main(
+        task_dictionary, 
+        team_members_dictionary, 
+        task_fields,
+        status_options,
+        int_bounds):
+    
+    menu_options = [
+        "Search for a Task",
+        "Search for a Team Member",
+        "Add Task",
+        "Edit Task",
+        "View All Tasks",
+        "View Members",
+        "Generate Report",
+        "Quit Menu"
+    ]
+
+    while True:
+        msg = "Welcome\n\nPlease select an action to continue"
+        action = easygui.choicebox(msg, "Main Menu", menu_options)
+
+        if action in [None, "Quit Menu"]:
+            return task_dictionary, team_members_dictionary
+        
+        else:
+            
+            if action in [menu_options[0], menu_options[1]]:
+                input_list = [task_dictionary, team_members_dictionary]
+
+                id = search_dict(
+                    input_list[menu_options.index(str(action))]
+                    )
+
+                if id == None:
+                    continue
+
+                elif id == False:
+                    easygui.msgbox("Error: Id Not Found", "Error")
+                
+                else:
+                    result = format_dict_single(
+                        input_list[menu_options.index(str(action))][id]
+                        )
+                    easygui.msgbox(
+                        f"Search Found: {id}\n\n{result}", 
+                        "Search Result")
+
+            elif action in [menu_options[2], menu_options[3]]:
+                task_actions = [
+                    lambda: add_task(
+                        task_dictionary, team_members_dictionary,
+                        task_fields, status_options, int_bounds
+                    ),
+                    lambda: edit_task(
+                        task_dictionary, team_members_dictionary,
+                        status_options, int_bounds
+                    )
+                ]
+                task_dictionary, team_members_dictionary = \
+                    task_actions[(menu_options.index(str(action)))-2]()
+                    
+            elif action in [menu_options[4], menu_options[5]]:
+                dict_list = [task_dictionary, team_members_dictionary]
+                title_list = [
+                    "Task Dictionary", "Team Members Dictionary"]
+                
+                title = title_list[menu_options.index(str(action))-4]
+                msg = f"{title}\n\n\
+                {format_dict_all(
+                    dict_list[menu_options.index(str(action))-4]
+                )}"
+                
+                easygui.msgbox(msg, )
+            else:
+                generate_report(task_dictionary, status_options)
+    
+task_dictionary, team_members_dictionary = \
+    main(
+    task_dictionary, team_members_dictionary, 
+    TASK_FIELDS, STATUS_OPTIONS, INT_BOUNDS
+    )
