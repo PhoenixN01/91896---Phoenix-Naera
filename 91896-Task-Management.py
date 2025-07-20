@@ -423,12 +423,11 @@ def main(
                     "Task Dictionary", "Team Members Dictionary"]
                 
                 title = title_list[menu_options.index(str(action))-4]
-                msg = f"{title}\n\n\
-                {format_dict_all(
-                    dict_list[menu_options.index(str(action))-4]
-                )}"
+                msg = f"{title}\n\n"
+                msg += format_dict_all(
+                    dict_list[menu_options.index(str(action))-4])
                 
-                easygui.msgbox(msg, )
+                easygui.msgbox(msg, title)
             else:
                 generate_report(task_dictionary, status_options)
     
