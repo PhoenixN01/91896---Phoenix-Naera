@@ -193,8 +193,8 @@ def add_task(
 
                 if task_values[index].strip() == "":
                     if task_fields[index] != "Assignee":
-                        error = "All Necessary fields are \
-                            required to create task"
+                        error = "All Necessary fields are required"
+                        error += " to create task"
                         break
                     else:
                         assignee = False
@@ -266,7 +266,7 @@ def edit_task(
     else:
         task_details = dict(task_dictionary[task_id])
         details = format_dict_single(task_details)
-        choices = task_details.keys()
+        choices = list(task_details.keys())
         selection = easygui.buttonbox(
             details, 
             "Select field to edit",
@@ -294,8 +294,7 @@ def edit_task(
                 else:
                     if new_detail.strip() == "":
                         if selection != "Assignee":
-                            error = "All Necessary fields are \
-                                required to create task"
+                            error = "This field cannot be empty"
                         else:
                             assignee = False
                             new_detail = "None"
@@ -321,8 +320,8 @@ def edit_task(
                     elif selection == "Status":
                         if not new_detail in status_options:
                             options_msg = ", ".join(status_options)
-                            error = f"Status must be one of the \
-                                following options: {options_msg}"
+                            error = f'''Status must be one of the
+                                following options: {options_msg}'''
                 
                 if error:
                     easygui.msgbox(error, "Error")
@@ -375,7 +374,7 @@ def main(
 
     while True:
         msg = "Welcome\n\nPlease select an action to continue"
-        action = easygui.choicebox(msg, "Main Menu", menu_options)
+        action = easygui.buttonbox(msg, "Main Menu", menu_options)
 
         if action in [None, "Quit Menu"]:
             return task_dictionary, team_members_dictionary
