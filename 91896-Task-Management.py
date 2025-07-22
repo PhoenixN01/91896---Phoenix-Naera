@@ -149,19 +149,17 @@ def search_dict(input):
     to search for a specific target case within the dictionary. 
     This function returns either the found id or None."""
 
-    msg = "Please enter the desired ID"
-    target_id = easygui.enterbox(msg)
+    msg = "Please choose from the options below:"
+    choices = []
+    key_list = list(input.keys())
+    for id, details in input:
+        choices.append(f"{id}: {details[key_list[0]]}")
 
-    if target_id == None:
-        return None
+    result = easygui.choicebox(msg, "Search", choices)
 
-    # Checking if the desired id is in in the dictionary and outputting 
-    # the id if it is found.
-    for id in input.keys():
-        if id == target_id:
-            return id
-    
-    return False
+    return result
+
+
 
 
 def add_task(
@@ -225,8 +223,8 @@ def add_task(
                 elif task_fields[index] == "Status":
                     if not task_values[index] in status_options:
                         options_msg = ", ".join(status_options)
-                        error = f"Status must be one of the \
-                            following options: {options_msg}"
+                        error = f"Status must be one of the "
+                        error += f"following options: {options_msg}"
                 else:
                     continue
 
@@ -320,8 +318,8 @@ def edit_task(
                     elif selection == "Status":
                         if not new_detail in status_options:
                             options_msg = ", ".join(status_options)
-                            error = f'''Status must be one of the
-                                following options: {options_msg}'''
+                            error = f"Status must be one of the "
+                            error += f"following options: {options_msg}"
                 
                 if error:
                     easygui.msgbox(error, "Error")
@@ -390,9 +388,6 @@ def main(
 
                 if id == None:
                     continue
-
-                elif id == False:
-                    easygui.msgbox("Error: Id Not Found", "Error")
                 
                 else:
                     result = format_dict_single(
@@ -400,7 +395,8 @@ def main(
                         )
                     easygui.msgbox(
                         f"Search Found: {id}\n\n{result}", 
-                        "Search Result")
+                        "Search Result"
+                        )
 
             elif action in [menu_options[2], menu_options[3]]:
                 task_actions = [
