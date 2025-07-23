@@ -204,9 +204,13 @@ def task_value_validation(
         if not (
             member_id in \
             team_members_dictionary.keys()
-            or member_id == "None"
+            or member_id.lower() == "none"
             ):
-            error = f"{member_id} is not a valid ID for Assignee"
+            member_id_list = team_members_dictionary.keys()
+            error = f"{member_id} is not a valid ID for Assignee\n\n"
+            error += f"Assignee ID's: {', '.join(member_id_list)}"
+        elif member_id.lower() == "none":
+            task_value = "None"
         else:
             assignee = True
 
@@ -214,10 +218,10 @@ def task_value_validation(
     elif task_field == "Status":
         if not task_value in status_options:
             options_msg = ", ".join(status_options)
-            error = "Status must be one of the following options: \n"
+            error = "Status must be one of the following options: \n\n"
             error += f"{options_msg}"
     
-    return error, assignee
+    return error, assignee, task_value
 
 def add_task(
         task_dictionary, team_members_dictionary,
@@ -249,11 +253,12 @@ def add_task(
             for index in range(0, len(task_values)):
                 
                 # Validating each task field in the result
-                error, assignee = task_value_validation(
-                    task_fields[index], task_values[index],
-                    team_members_dictionary, 
-                    int_bounds, status_options
-                    )
+                error, assignee, task_values[index] = \
+                    task_value_validation(
+                        task_fields[index], task_values[index], 
+                        team_members_dictionary, int_bounds, 
+                        status_options
+                        )
                 
                 # Exiting at the first sign of an error
                 if error:
@@ -326,7 +331,7 @@ def edit_task(
                 
                 # Validates users modification to the task
                 else:
-                    error, assignee = task_value_validation(
+                    error, assignee, new_detail = task_value_validation(
                         selection, new_detail, 
                         team_members_dictionary,
                         int_bounds, status_options
