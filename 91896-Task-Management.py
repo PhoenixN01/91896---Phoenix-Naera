@@ -281,6 +281,9 @@ def add_task(
                 
                 task_dict = dict(zip(task_fields, task_values))
                 task_dictionary[new_id] = task_dict
+                msg = "Task Added Successfully\n\n"
+                msg += format_dict_single(task_dict)
+                easygui.msgbox(msg, "Task Confirmation")
                 return task_dictionary, team_members_dictionary
                 
 
@@ -345,11 +348,17 @@ def edit_task(
                 # task details, saved and ready to exit
                 else:
                     if assignee:
-                        if not new_detail == current_detail:
+                        if not (new_detail == current_detail
+                        or task_id in \
+                            team_members_dictionary[new_detail]
+                            ["Tasks Assigned"]):
                             team_members_dictionary[new_detail]\
                                 ["Tasks Assigned"].append(task_id)
                         
                     task_dictionary[task_id][selection] = new_detail
+                    completed_msg = "Change Added Successfully\n\n"
+                    completed_msg += f"Old Detail: {current_detail}\n"
+                    completed_msg += f"New Detail: {new_detail}"
 
 def generate_report(task_dictionary, status_options):
     """Generate a report containing the number of tasks in each status.
