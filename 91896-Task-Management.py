@@ -295,6 +295,7 @@ def edit_task(
     edit and validating the requested change for the given detail."""
 
     task_id = search_dict(task_dictionary)
+    member_id_list = team_members_dictionary.keys()
     
     # Returning the user if the search function was cancelled or exited
     if task_id == None:
@@ -323,6 +324,14 @@ def edit_task(
                 error = ""
 
                 msg = f"What would you like to change {selection} to?"
+                if selection in ["Assignee", "Status"]:
+                    if selection == "Assignee":
+                        options = member_id_list
+                    elif selection == "Status":
+                        options = status_options
+                    msg += f"\n\nOptions: "
+                    msg += ", ".join(options)
+
                 new_detail = easygui.enterbox(
                     msg,
                     f"Edit {selection}",
@@ -347,13 +356,16 @@ def edit_task(
                 # Updates dictionaries and loops back to menu with new 
                 # task details, saved and ready to exit
                 else:
-                    if assignee:
-                        if not (new_detail == current_detail
-                        or task_id in \
-                            team_members_dictionary[new_detail]
-                            ["Tasks Assigned"]):
-                            team_members_dictionary[new_detail]\
-                                ["Tasks Assigned"].append(task_id)
+                    if selection == "Assignee":
+                        if not new_detail == current_detail:
+                            team_members_dictionary[current_detail]\
+                                ["Tasks Assigned"].remove(task_id)
+                            if assignee:
+
+                                team_members_dictionary[new_detail]\
+                                    ["Tasks Assigned"].append(task_id)
+                                team_members_dictionary[new_detail]\
+                                    ["Tasks Assigned"].sort()
                         
                     task_dictionary[task_id][selection] = new_detail
                     completed_msg = "Change Added Successfully\n\n"
