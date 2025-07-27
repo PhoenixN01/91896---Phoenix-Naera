@@ -395,11 +395,8 @@ def generate_report(task_dictionary, status_options):
     return
 
 def main(
-        task_dictionary, 
-        team_members_dictionary, 
-        task_fields,
-        status_options,
-        int_bounds):
+        task_dictionary, team_members_dictionary, 
+        task_fields, status_options, int_bounds):
 
     # Declares the list of functions available in the menu screen    
     menu_options = [
