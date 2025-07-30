@@ -173,8 +173,8 @@ def task_value_validation(
         team_members_dictionary, 
         int_bounds, status_options):
     """This function handles the various validations required by
-    Add Task and Edit Task. This function ensures that each field is 
-    created and/or changed to an approved value, returning a 
+    Add Task and Edit Task. This function ensures that a field is 
+    created and/or changed to an approved value, returning a    
     corresponding error if not. This function will also return a bool
     representing the presence of an assignee for the details."""
 
@@ -356,10 +356,12 @@ def edit_task(
                 # Updates dictionaries and loops back to menu with new 
                 # task details, saved and ready to exit
                 else:
+                    # Updates Member's assigned tasks
                     if selection == "Assignee":
                         if not new_detail == current_detail:
-                            team_members_dictionary[current_detail]\
-                                ["Tasks Assigned"].remove(task_id)
+                            if current_detail != "None":
+                                team_members_dictionary[current_detail]\
+                                    ["Tasks Assigned"].remove(task_id)
                             if assignee:
 
                                 team_members_dictionary[new_detail]\
