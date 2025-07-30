@@ -363,7 +363,6 @@ def edit_task(
                                 team_members_dictionary[current_detail]\
                                     ["Tasks Assigned"].remove(task_id)
                             if assignee:
-
                                 team_members_dictionary[new_detail]\
                                     ["Tasks Assigned"].append(task_id)
                                 team_members_dictionary[new_detail]\
