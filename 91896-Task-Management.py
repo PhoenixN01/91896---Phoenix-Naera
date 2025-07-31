@@ -127,14 +127,16 @@ def int_validation(input, bounds, field):
     with the type of error it encountered, along with the field it is 
     reffering to."""
 
-    # Checks if the input is an integer and returns an error otherwise
+    # Checks if the input is an integer and returns an error otherwise.
     try:
         int_test = int(input)
     except:
         error = f"{input} must be a valid integer"
         return error
 
-    # Checking if any bounds are present, returning True if 
+    # Checking if any bounds are present, returning True if either no 
+    # bounds were needed to be checked or if the input was within the 
+    # requested bounds.
     if bounds == None:
         return True
     elif (min(bounds) <= int_test <= max(bounds)):
@@ -151,7 +153,7 @@ def search_dict(input):
     to search for a specific target case within the dictionary. 
     This function returns either the found id or None."""
 
-    # Asks user to select an option to search for
+    # Asks user to select one of the options given in the input
     msg = "Please choose from the options below:"
     choices = []
     for id, details in input.items():
@@ -160,7 +162,7 @@ def search_dict(input):
 
     result = easygui.choicebox(msg, "Search", choices)
 
-    # Returns user to menu if they cancelled or exited the window
+    # Returns user to menu if they cancelled or exited the window.
     if result == None:
         return None
     
@@ -181,7 +183,7 @@ def task_value_validation(
     error = ""
     assignee = False
 
-    # Checks for a missing value being received
+    # Checks for a missing value being received.
     if task_value.strip() == "":
         if task_field != "Assignee":
             error = f"{task_field} is required to continue"
@@ -190,7 +192,7 @@ def task_value_validation(
 
     # Checking if the value requires integer validation as well as 
     # boundary validation if needed
-    # (A boundary value of none from int_bounds won't check boundaries)
+    # (A boundary value of none from int_bounds won't check boundaries).
     elif task_field in int_bounds:
         check_int = int_validation(
             task_value, int_bounds[task_field], task_field
@@ -198,7 +200,7 @@ def task_value_validation(
         if not check_int == True:
             error = check_int
 
-    # Checking if an assignee value is a valid id or "None"
+    # Checking if an assignee value is a valid id or "None".
     elif task_field == "Assignee":
         member_id = task_value
         if not (
@@ -214,7 +216,7 @@ def task_value_validation(
         else:
             assignee = True
 
-    # Checking if a status value is within the valid options
+    # Checking if a status value is within the valid options.
     elif task_field == "Status":
         if not task_value in status_options:
             options_msg = ", ".join(status_options)
@@ -233,7 +235,7 @@ def add_task(
 
     task_values = []
 
-    # Looping multenterbox request until the task is fulfilled
+    # Looping multenterbox request until the task is fulfilled.
     while True:
         new_task = cast(list[str] | None, easygui.multenterbox(
             "Please Enter Task Details", 
@@ -242,17 +244,17 @@ def add_task(
             task_values
             ))
         
-        # Returning user to menu if the window was cancelled or exited
+        # Returning user to menu if the window was cancelled or exited.
         if new_task == None:
             return task_dictionary, team_members_dictionary
         
         else:
             task_values = list(new_task)
 
-            # Looping through each field in the multenterbox result
+            # Looping through each field in the multenterbox result.
             for index in range(0, len(task_values)):
                 
-                # Validating each task field in the result
+                # Validating each task field in the result.
                 error, assignee, task_values[index] = \
                     task_value_validation(
                         task_fields[index], task_values[index], 
@@ -260,12 +262,12 @@ def add_task(
                         status_options
                         )
                 
-                # Exiting at the first sign of an error
+                # Exiting at the first sign of an error.
                 if error:
                     break
             
             # Restarting the request if an error occured, 
-            # procedurally adding the task if it is fulfilled properly
+            # procedurally adding the task if it is fulfilled properly.
             if error:
                 easygui.msgbox(error, "Error")
                 continue
@@ -279,6 +281,8 @@ def add_task(
                         list(team_members_dictionary.keys())[index]
                         ]["Tasks Assigned"].append(new_id)
                 
+                # Adding task to task_dictionary and returning a 
+                # confirmation message.
                 task_dict = dict(zip(task_fields, task_values))
                 task_dictionary[new_id] = task_dict
                 msg = "Task Added Successfully\n\n"
@@ -297,17 +301,17 @@ def edit_task(
     task_id = search_dict(task_dictionary)
     member_id_list = team_members_dictionary.keys()
     
-    # Returning the user if the search function was cancelled or exited
+    # Returning the user if the search function was cancelled or exited.
     if task_id == None:
         return task_dictionary, team_members_dictionary
     
     else:
 
-        # Looping the task detail editing, similar to add_task()
+        # Looping the task detail editing, similar to add_task().
         while True:
 
             # Formatting the task display, field choices and buttonbox 
-            # for the task editing
+            # for the task editing.
             task_details = dict(task_dictionary[task_id])
             details = "Current Details: \n\n"
             details += f"{format_dict_single(task_details)}"
@@ -316,6 +320,8 @@ def edit_task(
             selection = easygui.buttonbox(
                 details, "Select field to edit", choices)
             
+            # Returns to main menu if the user chose to exit or close
+            # the window.
             if selection in [None, "Exit"]:
                 return task_dictionary, team_members_dictionary
             
@@ -337,11 +343,11 @@ def edit_task(
                     f"Edit {selection}",
                     current_detail)
                 
-                # Returns user back to task view if cancelled or exited
+                # Returns user back to task view if cancelled or exited.
                 if new_detail == None:
                     continue
                 
-                # Validates users modification to the task
+                # Validates users modification to the task.
                 else:
                     error, assignee, new_detail = task_value_validation(
                         selection, new_detail, 
@@ -354,10 +360,12 @@ def edit_task(
                     continue
                 
                 # Updates dictionaries and loops back to menu with new 
-                # task details, saved and ready to exit
+                # task details, saved and ready to exit.
                 else:
-                    # Updates Member's assigned tasks
+                    # Checking if the edited field was Assignee.
                     if selection == "Assignee":
+                        # Checking if the Assignee id was already 
+                        # present prior to change
                         if not new_detail == current_detail:
                             if current_detail != "None":
                                 team_members_dictionary[current_detail]\
@@ -367,6 +375,12 @@ def edit_task(
                                     ["Tasks Assigned"].append(task_id)
                                 team_members_dictionary[new_detail]\
                                     ["Tasks Assigned"].sort()
+                    
+                    if selection == "Status":
+                        if task_details[selection] == "Completed":
+                            member = task_details["Assignee"]
+                            team_members_dictionary[member]\
+                                ["Tasks Assigned"].remove(task_id)
                         
                     task_dictionary[task_id][selection] = new_detail
                     completed_msg = "Change Added Successfully\n\n"
@@ -379,19 +393,19 @@ def generate_report(task_dictionary, status_options):
 
     report_dict = {status: int(0) for status in status_options}
 
-    # Iterates through each task to count status quantities
+    # Iterates through each task to count status quantities.
     for task in task_dictionary.values():
         report_dict[task["Status"]] += 1
     
     # Formats report sections based on the collated amounts of each 
-    # status
+    # status.
     msg_lines = [
         f"  {key}: {value}" for key, value in report_dict.items()
         ]
     msg = "\n---Task Report---\n"
     msg += "\n".join(msg_lines)
 
-    # Outputs final version of the report to the user
+    # Outputs final version of the report to the user.
     easygui.msgbox(msg, "Task Report")
     return
 
@@ -399,7 +413,7 @@ def main(
         task_dictionary, team_members_dictionary, 
         task_fields, status_options, int_bounds):
 
-    # Declares the list of functions available in the menu screen    
+    # Declares the list of functions available in the menu screen. 
     menu_options = [
         "Search for a Task",
         "Search for a Team Member",
@@ -412,21 +426,23 @@ def main(
     ]
 
     # Loops the menu screen until user specifically exits or quits the 
-    # menu
+    # menu.
     while True:
         msg = "Welcome\n\nPlease select an action to continue"
         action = easygui.buttonbox(msg, "Main Menu", menu_options)
 
+        # Closes program if the user closed the menu or chose to exit.
         if action in [None, "Quit Menu"]:
             return task_dictionary, team_members_dictionary
         
         else:
             
-            # Check if the selection involved the search function
+            # Check if the selection involved the search function.
             if action in [menu_options[0], menu_options[1]]:
                 input_list = [task_dictionary, team_members_dictionary]
                 
-                # Searches the corresponding dict to the users selection
+                # Searches the corresponding dict to the users 
+                # selection.
                 id = search_dict(
                     input_list[menu_options.index(str(action))]
                     )
@@ -434,7 +450,7 @@ def main(
                 if id == None:
                     continue
                 
-                # Outputs the results
+                # Outputs the results if an id was found.
                 else:
                     result = format_dict_single(
                         input_list[menu_options.index(str(action))][id]
@@ -444,7 +460,7 @@ def main(
                         "Search Result"
                         )
 
-            # Checks if the task specific functions are required
+            # Checks if the task specific functions are required.
             elif action in [menu_options[2], menu_options[3]]:
                 task_actions = [
                     lambda: add_task(
@@ -458,7 +474,7 @@ def main(
                 ]
 
                 # Dynamically selects task function based on the index 
-                # from menu_options, starting after the search indexes
+                # from menu_options, starting after the search indexes.
                 task_dictionary, team_members_dictionary = \
                     task_actions[(menu_options.index(str(action)))-2]()
             
@@ -468,7 +484,7 @@ def main(
                 title_list = [
                     "Task Dictionary", "Team Members Dictionary"]
                 
-                # Dynamically choose and format Dict title and data
+                # Dynamically choose and format Dict title and data.
                 title = title_list[menu_options.index(str(action))-4]
                 msg = f"{title}\n\n"
                 msg += format_dict_all(
@@ -481,7 +497,7 @@ def main(
                 generate_report(task_dictionary, status_options)
 
 # Run the main menu with the required dicts and constants for all 
-# functions included in the menu
+# functions included in the menu.
 task_dictionary, team_members_dictionary = \
     main(
     task_dictionary, team_members_dictionary, 
