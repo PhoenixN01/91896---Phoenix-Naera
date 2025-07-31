@@ -202,7 +202,7 @@ def task_value_validation(
 
     # Checking if an assignee value is a valid id or "None".
     elif task_field == "Assignee":
-        member_id = task_value
+        member_id = task_value.strip()
         if not (
             member_id in \
             team_members_dictionary.keys()
@@ -402,7 +402,7 @@ def generate_report(task_dictionary, status_options):
     msg_lines = [
         f"  {key}: {value}" for key, value in report_dict.items()
         ]
-    msg = "\n---Task Report---\n"
+    msg = "\n---Task Report---\n\n"
     msg += "\n".join(msg_lines)
 
     # Outputs final version of the report to the user.
@@ -482,7 +482,7 @@ def main(
             elif action in [menu_options[4], menu_options[5]]:
                 dict_list = [task_dictionary, team_members_dictionary]
                 title_list = [
-                    "Task Dictionary", "Team Members Dictionary"]
+                    "Task Dictionary", "Team Member Dictionary"]
                 
                 # Dynamically choose and format Dict title and data.
                 title = title_list[menu_options.index(str(action))-4]
