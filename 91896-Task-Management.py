@@ -250,7 +250,7 @@ def add_task(
         
         else:
             task_values = list(new_task)
-
+            confirm_assignee = False
             # Looping through each field in the multenterbox result.
             for index in range(0, len(task_values)):
                 
@@ -261,7 +261,8 @@ def add_task(
                         team_members_dictionary, int_bounds, 
                         status_options
                         )
-                
+                if assignee:
+                    confirm_assignee = True
                 # Exiting at the first sign of an error.
                 if error:
                     break
@@ -276,9 +277,9 @@ def add_task(
                 new_id = "T"
                 new_id += str(int(id_list[-1][1:]) + 1)
 
-                if assignee:
+                if confirm_assignee:
                     team_members_dictionary[
-                        list(team_members_dictionary.keys())[index]
+                        task_values[2]
                         ]["Tasks Assigned"].append(new_id)
                 
                 # Adding task to task_dictionary and returning a 
